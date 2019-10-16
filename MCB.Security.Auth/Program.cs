@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
@@ -13,14 +14,20 @@ namespace MCB.Security.Auth
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
-        }
+            var config = new ConfigurationBuilder().AddCommandLine(args)
+                                                   .SetBasePath(Directory.GetCurrentDirectory())
+                                                   .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                                                   .AddEnvironmentVariables()
+                                                   .Build();
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+            var host = new WebHostBuilder().UseConfiguration(config)
+#if DEBUG
+                                           .UseKestrel()
+#endif
+                                           .UseIIS()
+                                           .UseStartup<Startup>();
+
+            host.Build().Run();
+        }
     }
 }

@@ -26,7 +26,7 @@ namespace MCB.Security.Auth.Requests
         {
             if (!string.IsNullOrEmpty(request.UserName) && !string.IsNullOrEmpty(request.Password))
             {
-                UserEntity userEntity = await _userRepository.GetUserAsync(request.UserName, request.Password);
+                SiteUserEntity userEntity = await _userRepository.GetUserAsync(request.UserName, request.Password);
                 if (userEntity != null)
                 {
                    TokenInfo refreshToken = await _tokenFactory.GenerateRefreshToken(TokenConfiguration.RefreshTokenSize, TokenConfiguration.RefreshTokenExpiration);
@@ -35,9 +35,8 @@ namespace MCB.Security.Auth.Requests
 
                     AccessTokenParameters accessTokenParameters = new AccessTokenParameters
                     (
-                        userEntity.Guid, 
-                        userEntity.UserName, 
-                        userEntity.Roles.Select(e => e.RoleName).ToArray(),
+                        userEntity.SiteUserGuid, 
+                        userEntity.SiteUserName, 
                         TokenConfiguration.AccessTokenExpiration,
                         TokenConfiguration.SecretKey
                     );

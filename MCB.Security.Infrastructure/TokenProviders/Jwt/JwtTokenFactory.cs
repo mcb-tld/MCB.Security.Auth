@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Security.Principal;
@@ -22,7 +23,7 @@ namespace MCB.Security.Infrastructure.TokenProviders.Jwt
 
         public async Task<TokenInfo> GenerateAccessToken(AccessTokenParameters parameters)
         {
-            var identity = GenerateClaimsIdentity(parameters.UserGuid, parameters.UserName, parameters.Roles);
+            var identity = GenerateClaimsIdentity(parameters.UserGuid, parameters.UserName);
 
             SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor()
             {
@@ -49,21 +50,24 @@ namespace MCB.Security.Infrastructure.TokenProviders.Jwt
             }
         }
 
-        private static ClaimsIdentity GenerateClaimsIdentity(int id, string userName, string[] roles)
+        public UserIdentity GetUserIdentity(string accessToken, string signingKey)
+        {
+            ClaimsPrincipal cp = GetPrincipalFromToken(accessToken, signingKey);
+            if (cp != null && int.TryParse(cp.Claims.First(c => c.Type == Constants.ClaimTypes.Identifier).Value, out int id))
+            {
+                return new UserIdentity(id);
+            }
+
+            return null;
+        }
+
+        private static ClaimsIdentity GenerateClaimsIdentity(int id, string userName)
         {
             ClaimsIdentity identity = new ClaimsIdentity(new GenericIdentity(userName, "Token"), new[]
             {
                 new Claim(Constants.ClaimTypes.Identifier, id.ToString()),
                 new Claim(Constants.ClaimTypes.Name, userName)
             });
-
-            if (roles?.Length > 0)
-            {
-                foreach (string role in roles)
-                {
-                    identity.AddClaim(new Claim(Constants.ClaimTypes.Role, role));
-                }
-            }
 
             return identity;
         }

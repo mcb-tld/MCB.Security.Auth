@@ -9,5 +9,6 @@ namespace MCB.Security.Infrastructure.TokenProviders
     {
         Task<TokenInfo> GenerateAccessToken(AccessTokenParameters parameters);
         Task<TokenInfo> GenerateRefreshToken(int tokenSize, int expiresIn);
+        UserIdentity GetUserIdentity(string accessToken, string signingKey);
     }
 }
