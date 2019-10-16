@@ -13,14 +13,12 @@ namespace MCB.Security.Auth.Requests
 
     public class LoginRequestHandler : ILoginRequestHandler
     {
-        private readonly ITokenFactory _accessTokenFactory;
-        private readonly ITokenFactory _refreshTokenFactory;
+        private readonly ITokenFactory _tokenFactory;
         private readonly IUserRepository _userRepository;
 
         public LoginRequestHandler(ITokenProviderFactory tokenProviderFactory, IUserRepository userRepository)
         {
-            _accessTokenFactory = tokenProviderFactory.GetTokenFactory(TokenConfiguration.TokenProvider);
-            _refreshTokenFactory = tokenProviderFactory.GetTokenFactory(TokenProviderEnum.Builtin);
+            _tokenFactory = tokenProviderFactory.GetTokenFactory(TokenConfiguration.TokenProvider);
             _userRepository = userRepository;
         }
 
@@ -30,8 +28,21 @@ namespace MCB.Security.Auth.Requests
             {
                 UserEntity userEntity = await _userRepository.GetUserAsync(request.UserName, request.Password);
                 if (userEntity != null)
-                { 
-                   
+                {
+                   TokenInfo refreshToken = await _tokenFactory.GenerateRefreshToken(TokenConfiguration.RefreshTokenSize, TokenConfiguration.RefreshTokenExpiration);
+                   userEntity.AddRefreshToken(refreshToken.Token, refreshToken.ExpiresIn);
+                   await _userRepository.UpdateUser(userEntity);
+
+                    AccessTokenParameters accessTokenParameters = new AccessTokenParameters
+                    (
+                        userEntity.Guid, 
+                        userEntity.UserName, 
+                        userEntity.Roles.Select(e => e.RoleName).ToArray(),
+                        TokenConfiguration.AccessTokenExpiration,
+                        TokenConfiguration.SecretKey
+                    );
+                   TokenInfo accessToken = await _tokenFactory.GenerateAccessToken(accessTokenParameters);
+                   return new Response(accessToken.Token, refreshToken.Token);
                 }
             }
 

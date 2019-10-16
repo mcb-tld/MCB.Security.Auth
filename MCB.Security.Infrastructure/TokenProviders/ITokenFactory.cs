@@ -7,7 +7,7 @@ namespace MCB.Security.Infrastructure.TokenProviders
 {
     public interface ITokenFactory
     {
-        Task<TokenInfo> GenerateToken(AccessTokenParameters parameters);
-        Task<TokenInfo> RefreshToken(RefreshTokenParameters parameters);
+        Task<TokenInfo> GenerateAccessToken(AccessTokenParameters parameters);
+        Task<TokenInfo> GenerateRefreshToken(int tokenSize, int expiresIn);
     }
 }

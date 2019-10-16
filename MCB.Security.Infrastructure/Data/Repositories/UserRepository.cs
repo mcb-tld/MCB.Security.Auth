@@ -10,10 +10,24 @@ namespace MCB.Security.Infrastructure.Data.Repositories
     {
         Task<UserEntity> GetUserAsync(int guid);
         Task<UserEntity> GetUserAsync(string userName, string password);
+        Task<int> UpdateUser(UserEntity user);
     }
 
-    public class UserRepository
+    public class UserRepository : IUserRepository
     {
+        public async Task<UserEntity> GetUserAsync(int guid)
+        {
+            return new UserEntity() { Guid = 123, UserName = "tld" };
+        }
 
+        public async Task<UserEntity> GetUserAsync(string userName, string password)
+        {
+            return new UserEntity() { Guid = 123, UserName = "tld" };
+        }
+
+        public async Task<int> UpdateUser(UserEntity user)
+        {
+            return 1;
+        }
     }
 }

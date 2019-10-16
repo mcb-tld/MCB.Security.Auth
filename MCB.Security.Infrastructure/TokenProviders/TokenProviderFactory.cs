@@ -24,12 +24,9 @@ namespace MCB.Security.Infrastructure.TokenProviders
             {
                 case TokenProviderEnum.Jwt:
                     return _currentTokenFactories[tokenProviderEnum] = new JwtTokenFactory();
-                    break;
                 default:
                     throw new NotSupportedException($"token provider not found: {tokenProviderEnum.ToString()}");
             }
-
-            return null;
         }
     }
 }

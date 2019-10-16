@@ -1,8 +1,11 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using MCB.Security.Infrastructure.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,19 +20,52 @@ namespace MCB.Security.Infrastructure.TokenProviders.Jwt
             _jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
         }
 
-        public async Task<TokenInfo> GenerateToken(AccessTokenParameters parameters)
+        public async Task<TokenInfo> GenerateAccessToken(AccessTokenParameters parameters)
         {
-            throw new NotImplementedException();
+            var identity = GenerateClaimsIdentity(parameters.UserGuid, parameters.UserName, parameters.Roles);
+
+            SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor()
+            {
+                Subject = identity,
+                IssuedAt = DateTime.Now,
+                Expires = DateTime.Now.AddSeconds(parameters.ExpiresIn),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(parameters.SigningKey)), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = _jwtSecurityTokenHandler.CreateToken(tokenDescriptor);
+          
+            return new TokenInfo(_jwtSecurityTokenHandler.WriteToken(token), parameters.ExpiresIn);
         }
 
-        public async Task<TokenInfo> RefreshToken(RefreshTokenParameters parameters)
+        public async Task<TokenInfo> GenerateRefreshToken(int tokenSize, int expiresIn)
         { 
-            throw new NotImplementedException();
+            var randomNumber = new byte[tokenSize];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(randomNumber);
+                string refreshToken = Convert.ToBase64String(randomNumber);
+
+                return new TokenInfo(refreshToken, expiresIn);
+            }
         }
 
-        public string WriteToken(JwtSecurityToken jwt)
+        private static ClaimsIdentity GenerateClaimsIdentity(int id, string userName, string[] roles)
         {
-            return _jwtSecurityTokenHandler.WriteToken(jwt);
+            ClaimsIdentity identity = new ClaimsIdentity(new GenericIdentity(userName, "Token"), new[]
+            {
+                new Claim(Constants.ClaimTypes.Identifier, id.ToString()),
+                new Claim(Constants.ClaimTypes.Name, userName)
+            });
+
+            if (roles?.Length > 0)
+            {
+                foreach (string role in roles)
+                {
+                    identity.AddClaim(new Claim(Constants.ClaimTypes.Role, role));
+                }
+            }
+
+            return identity;
         }
 
         public ClaimsPrincipal GetPrincipalFromToken(string token, string signingKey)
