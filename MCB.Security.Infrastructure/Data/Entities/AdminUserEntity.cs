@@ -5,21 +5,18 @@ using System.Text;
 
 namespace MCB.Security.Infrastructure.Data.Entities
 {
-    public class SiteUserEntity : BaseEntity
+    public class AdminUserEntity : BaseEntity
     {
-        public int SiteUserGuid { get; set; }
-        public string SiteUserName { get; set; }
-        public string SiteUserPassword { get; set; }
-        public string SiteUserEmail { get; set; }
-        public int SiteGuid { get; set; }
-        public int SiteUserEmailVerifiedCount { get; set; }
-        public int SiteUserEmailVerifiedFailCount { get; set; }
-        public int ImportOriginGuid { get; set; }
-        public bool SiteUserSalesPersonSystemAccess { get; set; }
-        public bool MoveToOtherCustomer { get; set; }
-        public int HashType { get; set; }
+        public int UserGuid { get; set; }
+        public string UserName { get; set; }
+        public string UserPassword { get; set; }
+        public string UserEmail { get; set; }
+        public bool UserAdminAccess { get; set; }
+        public bool ContentPreserveLanguage { get; set; }
+        public bool HasBeenLoggedInMyAccumolo { get; set; }
+        public bool IsDeactivated { get; set; }
+        public bool HasAccessToSitesWithSensitiveData { get; set; }
         public List<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
-        //public List<UserRole> Roles { get; set; }
 
         public bool IsValidRefreshToken(string refreshToken)
         {

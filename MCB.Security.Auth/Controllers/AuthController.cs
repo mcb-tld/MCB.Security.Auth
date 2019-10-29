@@ -1,14 +1,16 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using MCB.Security.Auth.Models;
-using MCB.Security.Auth.Requests;
+using MCB.Security.Auth.Handlers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MCB.Security.Auth.Handlers.Login;
+using MCB.Security.Auth.Handlers.Refresh;
 
 namespace MCB.Security.Auth.Controllers
 {
     [ApiController]
-    [Route("auth")]
+    [ApiVersion("1")]
+    [Route("api/v{version:apiVersion}/auth")]
     public class AuthController : ControllerBase
     {
         protected readonly ILoginRequestHandler _loginRequestHandler;

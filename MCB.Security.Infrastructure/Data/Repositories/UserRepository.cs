@@ -10,30 +10,30 @@ namespace MCB.Security.Infrastructure.Data.Repositories
 {
     public interface IUserRepository
     {
-        Task<SiteUserEntity> GetUserAsync(int guid);
-        Task<SiteUserEntity> GetUserAsync(string userName, string password);
-        Task<int> UpdateUser(SiteUserEntity user);
+        Task<AdminUserEntity> GetUserAsync(int guid);
+        Task<AdminUserEntity> GetUserAsync(string userName, string password);
+        Task<int> UpdateUser(AdminUserEntity user);
     }
 
     public class UserRepository : IUserRepository
     {
-        public async Task<SiteUserEntity> GetUserAsync(int guid)
+        public async Task<AdminUserEntity> GetUserAsync(int guid)
         {
             using (MasterpieceContext context = new MasterpieceContext())
             {
-                return await context.SiteUsers.Where(e => e.SiteUserGuid == guid).SingleOrDefaultAsync();
+                return await context.SiteUsers.Where(e => e.UserGuid == guid).SingleOrDefaultAsync();
             }
         }
 
-        public async Task<SiteUserEntity> GetUserAsync(string userName, string password)
+        public async Task<AdminUserEntity> GetUserAsync(string userName, string password)
         {
             using (MasterpieceContext context = new MasterpieceContext())
             {
-                return await context.SiteUsers.Where(e => e.SiteUserName == userName).SingleOrDefaultAsync();
+                return await context.SiteUsers.Where(e => e.UserName == userName).SingleOrDefaultAsync();
             }
         }
 
-        public async Task<int> UpdateUser(SiteUserEntity user)
+        public async Task<int> UpdateUser(AdminUserEntity user)
         {
             return 1;
         }

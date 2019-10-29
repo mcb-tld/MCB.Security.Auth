@@ -23,9 +23,9 @@ namespace MCB.Security.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration<SiteUserEntity>(new SiteUserConfiguration());
+            modelBuilder.ApplyConfiguration<AdminUserEntity>(new AdminUserConfiguration());
         }
 
-        public DbSet<SiteUserEntity> SiteUsers { get; set; }
+        public DbSet<AdminUserEntity> SiteUsers { get; set; }
     }
 }

@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MCB.Security.Auth.Requests
+namespace MCB.Security.Auth.Handlers
 {
-    public class RefreshTokenRequest : IRequest
+    public class Response : IResponse
     {
         public string AccessToken { get; set; }
         public string RefreshToken { get; set; }
 
-        public RefreshTokenRequest(string accessToken, string refreshToken)
+        public Response(string accessToken, string refreshToken)
         {
             AccessToken = accessToken;
             RefreshToken = refreshToken;

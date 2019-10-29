@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using MCB.Security.Infrastructure.Configuration;
-using MCB.Security.Infrastructure.TokenProviders.Jwt;
 
 namespace MCB.Security.Infrastructure.TokenProviders
 {
     public class TokenProviderFactory : ITokenProviderFactory
     {
         private Dictionary<TokenProviderEnum, ITokenFactory> _currentTokenFactories;
+        private readonly IEnumerable<ITokenFactory> _tokenFactories;
 
-        public TokenProviderFactory()
+        public TokenProviderFactory(IEnumerable<ITokenFactory> tokenFactories)
         {
+            _tokenFactories = tokenFactories;
             _currentTokenFactories = new Dictionary<TokenProviderEnum, ITokenFactory>();
         }
 
@@ -20,13 +21,17 @@ namespace MCB.Security.Infrastructure.TokenProviders
             if (_currentTokenFactories.ContainsKey(tokenProviderEnum))
                 return _currentTokenFactories[tokenProviderEnum];
 
-            switch (tokenProviderEnum)
+            IEnumerable<ITokenFactory> matchedFactories = _tokenFactories.Where(f => f.TokenProvider.Equals(tokenProviderEnum));
+            if (matchedFactories.Count() == 0)
             {
-                case TokenProviderEnum.Jwt:
-                    return _currentTokenFactories[tokenProviderEnum] = new JwtTokenFactory();
-                default:
-                    throw new NotSupportedException($"token provider not found: {tokenProviderEnum.ToString()}");
+                throw new NotSupportedException($"Token provider not found: {tokenProviderEnum.ToString()}");
             }
+            else if (matchedFactories.Count() > 1)
+            {
+                throw new NotSupportedException($"More than 1 providers found for: {tokenProviderEnum.ToString()}");
+            }
+            else
+                return matchedFactories.Single();
         }
     }
 }

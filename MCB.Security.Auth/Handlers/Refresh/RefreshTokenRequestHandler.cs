@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MCB.Security.Auth.Requests
+namespace MCB.Security.Auth.Handlers.Refresh
 {
     public interface IRefreshTokenRequestHandler : IRequestHandler<RefreshTokenRequest> { }
 
@@ -39,8 +39,8 @@ namespace MCB.Security.Auth.Requests
 
                     AccessTokenParameters accessTokenParameters = new AccessTokenParameters
                     (
-                        userEntity.SiteUserGuid,
-                        userEntity.SiteUserName,
+                        userEntity.UserGuid,
+                        userEntity.UserName,
                         TokenConfiguration.AccessTokenExpiration,
                         TokenConfiguration.SecretKey
                     );

@@ -1,20 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using MCB.Security.Auth.Requests;
+using MCB.Security.Auth.Handlers.Login;
+using MCB.Security.Auth.Handlers.Refresh;
 using MCB.Security.Infrastructure.Data.Repositories;
 using MCB.Security.Infrastructure.TokenProviders;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.Swagger;
 
 namespace MCB.Security.Auth
 {
@@ -31,8 +24,13 @@ namespace MCB.Security.Auth
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddApiVersioning();
 
             ConfigureInjection(services);
+            services.AddSecurityProvider(options =>
+            {
+                options.UseJwt();
+            });
 
             services.AddSwaggerGen(c =>
             {
@@ -75,6 +73,7 @@ namespace MCB.Security.Auth
             services.AddSingleton<IUserRepository, UserRepository>();
             services.AddSingleton<ITokenProviderFactory, TokenProviderFactory>();
             services.AddSingleton<ILoginRequestHandler, LoginRequestHandler>();
+            services.AddSingleton<IRefreshTokenRequestHandler, RefreshTokenRequestHandler>();
         }
     }
 }
